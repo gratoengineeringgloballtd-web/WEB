@@ -1,0 +1,23 @@
+# Apache / cPanel: send every page URL to index.html so React Router can handle it.
+Options -MultiViews
+
+# Old WordPress URLs → new pages (keeps existing links and search results working)
+Redirect 301 /who-we-are/ /about
+Redirect 301 /our-services/ /services
+Redirect 301 /contact/ /contact
+
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+
+# Long cache for hashed build files and images
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType text/css "access plus 1 year"
+</IfModule>

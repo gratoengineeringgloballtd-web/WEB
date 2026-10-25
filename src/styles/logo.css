@@ -1,0 +1,9 @@
+/* Logo mark size (header and footer).
+   Selectors include the element names so they win over the older 44px rules
+   in global.css whatever order the stylesheets load in. */
+header.hdr .brand img{width:54px;height:auto}
+header.hdr .brand{gap:12px}
+@media (min-width:1101px){header.hdr.scrolled .brand img{width:46px}}
+@media (max-width:480px){header.hdr .brand img{width:42px}header.hdr .brand{gap:9px}}
+footer.ftr .brand img{width:58px;height:auto}
+footer.ftr .brand{gap:14px}

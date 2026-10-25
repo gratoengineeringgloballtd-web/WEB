@@ -1,0 +1,15 @@
+/* Styles for content managed in the admin dashboard (news articles, case galleries, job details). */
+.hp{position:absolute!important;left:-10000px!important;width:1px;height:1px;opacity:0}
+.nmore{justify-self:start;margin-top:4px;font-size:15px}
+.news article .nimg{width:calc(100% + 44px);margin:-22px -22px 6px;aspect-ratio:16/9;object-fit:cover;border-radius:var(--r) var(--r) 0 0;max-width:none}
+.article{max-width:900px;display:grid;gap:clamp(20px,2.4vw,32px)}
+.article-img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:8px}
+.article-body{display:grid;gap:16px;font-size:18px;line-height:1.7;max-width:70ch}
+.article-body p{margin:0}
+.case-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:clamp(20px,2.4vw,32px)}
+.case-gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px}
+
+.jobs .job-more{grid-column:1/-1;margin-top:6px;font-size:15.5px;color:var(--steel)}
+.job-more summary{cursor:pointer;font-weight:600;color:var(--ink);width:max-content}
+.job-more[open] summary{margin-bottom:10px}
+.job-more p{margin:0 0 10px;max-width:75ch}

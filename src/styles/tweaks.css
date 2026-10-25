@@ -1,0 +1,24 @@
+/* Loaded last (see main.jsx). Overrides for launch and layout tweaks. */
+
+/* Placeholders: no dashed outlines or highlight; text reads as normal copy. */
+.ph{background:none!important;outline:none!important;color:inherit!important;padding:0!important;cursor:inherit}
+.ph-box{border:1px solid var(--line)!important;background:var(--mist)!important;color:var(--steel)!important}
+.proto{display:none}
+
+/* Company profile download button */
+.btn .ic{width:20px;height:20px}
+
+/* Closing band + footer: tighter join, one hairline between them */
+.cta .wrap{padding-block:clamp(64px,7vw,112px) clamp(40px,4vw,64px)}
+.ftr{border-top:1px solid rgba(255,255,255,.08)}
+.ftr .wrap{padding-block:clamp(40px,4.4vw,64px) 32px;gap:clamp(36px,4vw,56px)}
+.ftr-bottom{padding-top:24px}
+@media (max-width:560px){.cta .wrap{padding-block:56px 36px}.ftr .wrap{padding-block:36px 28px}}
+
+/* Hero: let the headline and intro run wider */
+.hs h1,.hs .h1{max-width:24ch}
+.hs .lead{max-width:72ch}
+.hs-in{max-width:none}
+@media (min-width:701px){
+  .hs::after{background:linear-gradient(90deg,rgba(14,16,18,.94) 0%,rgba(14,16,18,.86) 55%,rgba(14,16,18,.5) 100%)}
+}

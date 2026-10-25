@@ -1,0 +1,6 @@
+/* Logo wordmark: space between "Grato Engineering" and "Global Limited".
+   Kept in its own file so it loads after global.css and is easy to find. */
+.brand > span{display:grid;gap:7px;align-content:center}
+.brand b{line-height:1.05}
+.brand small{line-height:1.2}
+.ftr .brand > span{gap:8px}
