@@ -4,10 +4,12 @@
  * Files are uploaded first, in chunks of up to 2 MB (serverless requests are
  * limited in size), then the form is sent with references to the uploaded files.
  */
+import { apiUrl, CREDENTIALS } from './apiBase.js';
+
 export const formIsLive = true;
 
 async function post(path, body) {
-  const res = await fetch(`/api${path}`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const res = await fetch(apiUrl(`/api${path}`), { method: 'POST', credentials: CREDENTIALS, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   let data = null;
   try { data = await res.json(); } catch { /* empty */ }
   if (!res.ok) throw Object.assign(new Error(data?.error || `HTTP ${res.status}`), { status: res.status, code: data?.code });

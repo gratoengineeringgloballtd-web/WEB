@@ -7,6 +7,8 @@
  * As soon as an admin uploads a photo for a product, only the uploaded photos are
  * shown for that product.
  */
+import { mediaUrl } from '../lib/apiBase.js';
+
 const C = (file) => ({ commons: file });
 
 const GENERATOR = [C('Caterpillar_(Olympian)_Generator_Set.jpg'), C('Kirloskar_-_Silent_Diesel_Generator_Set_-_Mathura_2013-02-24_6663.JPG'), C('Dieselgenerator.jpg'), C('Diesel_generator.jpg')];
@@ -58,7 +60,7 @@ const hasOwnPhotos = (p) => (p?.images || []).some((u) => /^(\/api\/images\/|htt
  */
 export function galleryFor(p, asset = (x) => x) {
   if (!p) return [];
-  if (hasOwnPhotos(p)) return p.images.map((u) => ({ src: u.startsWith('/img/') ? asset(u) : u, srcLarge: u.startsWith('/img/') ? asset(u) : u, credit: null }));
+  if (hasOwnPhotos(p)) return p.images.map((u) => { const s = u.startsWith('/img/') ? asset(u) : mediaUrl(u); return { src: s, srcLarge: s, credit: null }; });
   const list = PLACEHOLDERS[p.slug] || [...(p.images || []), ...(BY_CATEGORY[p.category] || [])];
   const seen = new Set();
   return list.filter((x) => { const k = typeof x === 'string' ? x : x.commons; if (seen.has(k)) return false; seen.add(k); return true; }).map((x) => (

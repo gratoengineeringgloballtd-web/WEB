@@ -4,6 +4,7 @@ import { Loading, ErrorBox } from '../shop/parts.jsx';
 import { SVCS, METRICS } from '../data/content.js';
 import { photoSrc, refreshSite } from '../lib/site.jsx';
 import { uploadPhoto } from './photos.js';
+import { apiUrl } from '../lib/apiBase.js';
 
 /*
  * Admin: website content editors (news, projects, jobs, partners, clients, offices)
@@ -462,7 +463,7 @@ function InboxItem({ box, id, map, back }) {
             <h2 className="sub-h">{isApps ? 'CV' : 'Attached files'}</h2>
             {x.fileList.length ? (
               <ul className="ad-files">{x.fileList.map((f) => (
-                <li key={f.id}><a className="btn btn-line btn-sm" href={`/api/admin/files/${f.id}`} download={f.name}>Download</a><span>{f.name}</span><small>{size(f.size)}</small></li>
+                <li key={f.id}><a className="btn btn-line btn-sm" href={apiUrl(`/api/admin/files/${f.id}`)} download={f.name}>Download</a><span>{f.name}</span><small>{size(f.size)}</small></li>
               ))}</ul>
             ) : <p className="sh-hint">No files.</p>}
           </section>

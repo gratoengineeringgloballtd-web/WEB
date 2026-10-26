@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { NEWS, PROJECTS, JOBS, PARTNERS, CLIENTS, OFFICES, LOGO, STRINGS } from '../data/content.js';
 import { asset } from './ui.jsx';
+import { apiUrl, CREDENTIALS, mediaUrl } from './apiBase.js';
 
 /*
  * Website content edited in the admin dashboard (news, projects, jobs, partners,
@@ -27,7 +28,7 @@ let cache = null;
 let pending = null;
 const load = () => {
   if (!pending) {
-    pending = fetch('/api/site', { credentials: 'same-origin' })
+    pending = fetch(apiUrl('/api/site'), { credentials: CREDENTIALS })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((d) => { cache = { ...d, live: true }; return cache; })
       .catch(() => { pending = null; return null; });
@@ -54,7 +55,7 @@ export const useSite = () => useContext(SiteCtx);
 /** Photo URL for a project/news photo: a site photo name ("solar-tower") or an uploaded photo URL. */
 export function photoSrc(img) {
   if (!img) return null;
-  if (/^(https?:|\/api\/)/.test(img)) return img;
+  if (/^(https?:|\/api\/)/.test(img)) return mediaUrl(img);
   if (img.startsWith('/')) return asset(img);
   return asset(`img/${img}.webp`);
 }

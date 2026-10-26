@@ -21,13 +21,20 @@ export async function setSession(res, user) {
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE_S}s`)
     .sign(secret());
-  res.cookie(COOKIE, token, {
-    httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production',
-    maxAge: MAX_AGE_S * 1000, path: '/',
-  });
+  res.cookie(COOKIE, token, { ...cookieOpts(), maxAge: MAX_AGE_S * 1000 });
 }
 
-export const clearSession = (res) => res.clearCookie(COOKIE, { path: '/' });
+/*
+ * Pages on gratoglobal.com and the API on api.gratoglobal.com count as the same site, so
+ * the default 'lax' cookie works. Only if the API runs on a different domain (for example
+ * *.vercel.app) set COOKIE_SAMESITE=none; some browsers (Safari) may still block it.
+ */
+function cookieOpts() {
+  const none = String(process.env.COOKIE_SAMESITE || '').toLowerCase() === 'none';
+  return { httpOnly: true, sameSite: none ? 'none' : 'lax', secure: none || process.env.NODE_ENV === 'production', path: '/' };
+}
+
+export const clearSession = (res) => res.clearCookie(COOKIE, cookieOpts());
 
 /** Attach req.user when a valid session cookie is present. Never throws. */
 export async function loadUser(req, _res, next) {

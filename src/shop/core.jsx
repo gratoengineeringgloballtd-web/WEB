@@ -3,13 +3,14 @@ import { useLocation } from 'react-router-dom';
 import { useLang } from '../lib/i18n.jsx';
 import { asset } from '../lib/ui.jsx';
 import { SHOP_STRINGS } from './strings.js';
+import { apiUrl, CREDENTIALS, mediaUrl } from '../lib/apiBase.js';
 
 /* ---------------- API ---------------- */
 export async function api(path, { method = 'GET', body } = {}) {
   let res;
   try {
-    res = await fetch(`/api${path}`, {
-      method, credentials: 'same-origin',
+    res = await fetch(apiUrl(`/api${path}`), {
+      method, credentials: CREDENTIALS,
       headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });
@@ -42,7 +43,7 @@ export function money(amount, currency, lang) {
 }
 
 export const L = (o, lang) => (o && typeof o === 'object' ? o[lang] || o.en || '' : o || '');
-export const imgSrc = (u) => (!u ? null : /^(https?:|\/api\/)/.test(u) ? u : asset(u));
+export const imgSrc = (u) => (!u ? null : /^(https?:|\/api\/)/.test(u) ? mediaUrl(u) : asset(u));
 export const CAT_ICON = { generators: 'genset', 'spare-parts': 'wrench', power: 'power', telecom: 'tower' };
 
 /* ---------------- context ---------------- */

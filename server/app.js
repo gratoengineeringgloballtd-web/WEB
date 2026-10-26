@@ -24,20 +24,56 @@ app.use(express.json({ limit: '4mb' }));
 app.use(cookieParser());
 app.use((req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 
-// Cookie-authenticated writes must come from this site.
+/*
+ * The pages may be served from another address than the API (pages on Hostinger at
+ * gratoglobal.com, API on Vercel at api.gratoglobal.com). Browsers may call the API only
+ * from SITE_URL (with and without www) and any extra address in ALLOWED_ORIGINS.
+ */
+function allowedOrigins() {
+  const set = new Set();
+  const add = (u) => {
+    try {
+      const x = new URL(String(u).trim());
+      set.add(x.origin);
+      set.add(x.hostname.startsWith('www.') ? x.origin.replace('://www.', '://') : `${x.protocol}//www.${x.host}`);
+    } catch { /* ignore bad entries */ }
+  };
+  if (process.env.SITE_URL) add(process.env.SITE_URL);
+  String(process.env.ALLOWED_ORIGINS || '').split(',').filter(Boolean).forEach(add);
+  return set;
+}
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins().has(origin)) {
+    res.set('Access-Control-Allow-Origin', origin);
+    res.set('Access-Control-Allow-Credentials', 'true');
+    res.append('Vary', 'Origin');
+    if (req.method === 'OPTIONS') {
+      res.set('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+      res.set('Access-Control-Allow-Headers', 'Content-Type');
+      res.set('Access-Control-Max-Age', '86400');
+      return res.status(204).end();
+    }
+  }
+  next();
+});
+
+// Cookie-authenticated writes must come from the site itself.
 app.use((req, _res, next) => {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method) || req.path.startsWith('/api/webhooks/')) return next();
   const origin = req.headers.origin;
   if (!origin) return next();
   const host = req.headers['x-forwarded-host'] || req.headers.host;
   try {
-    const ok = new URL(origin).host === host || (process.env.SITE_URL && new URL(process.env.SITE_URL).host === new URL(origin).host);
+    const ok = new URL(origin).host === host || allowedOrigins().has(origin);
     if (!ok) return next(Object.assign(new Error('Cross-site request refused.'), { status: 403 }));
   } catch { return next(Object.assign(new Error('Bad origin.'), { status: 403 })); }
   next();
 });
 app.use(loadUser);
 
+app.get('/', (_req, res) => res.redirect(302, process.env.SITE_URL || '/api/health'));
 app.get('/api/health', h(async (_req, res) => { await getDb(); res.json({ ok: true }); }));
 app.use('/api', publicRoutes);
 app.use('/api', formRoutes);

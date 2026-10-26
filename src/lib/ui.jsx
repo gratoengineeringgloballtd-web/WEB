@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ICONS } from '../data/icons.js';
 import { HAS480 } from '../data/content.js';
+import { mediaUrl } from './apiBase.js';
 
 export const BASE = import.meta.env.BASE_URL;
 export const asset = (p) => BASE + p.replace(/^\//, '');
@@ -25,7 +26,7 @@ export function Icon({ id, className = '', style }) {
 export function Pic({ name, alt = '', sizes = '100vw', eager = false, ...rest }) {
   if (name && /[/:]/.test(name)) {
     // An uploaded photo (/api/images/…) or another full path, e.g. from the admin dashboard.
-    const src = /^(https?:|\/api\/)/.test(name) ? name : asset(name);
+    const src = /^(https?:|\/api\/)/.test(name) ? mediaUrl(name) : asset(name);
     return <img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} decoding="async" {...rest} />;
   }
   const has = HAS480.includes(name);

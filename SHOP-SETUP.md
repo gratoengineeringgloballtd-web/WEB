@@ -5,7 +5,8 @@ a referral programme (`/referral`) and an admin dashboard (`/admin`).
 Each has a French version under `/fr/...`.
 
 The shop runs on a small API (the `server/` folder). On Vercel it runs as one
-serverless function (`api/index.js`); the data is stored in MongoDB Atlas.
+serverless function (`api/index.js`) at `api.gratoglobal.com`; the data is stored in
+MongoDB Atlas. The pages are hosted on Hostinger (see "Hosting" below).
 
 ## 1. Create the database (MongoDB Atlas, free tier is fine to start)
 
@@ -24,7 +25,7 @@ Vercel → Project → Settings → Environment Variables.
 | `MONGODB_URI` | The Atlas connection string |
 | `MONGODB_DB` | `grato` |
 | `JWT_SECRET` | A random string of at least 32 characters (keeps sign-ins secure) |
-| `SITE_URL` | `https://your-domain.com` (no trailing slash) |
+| `SITE_URL` | `https://gratoglobal.com` (the Hostinger pages, no trailing slash) |
 | `FLW_SECRET_KEY` | Flutterwave secret key (Dashboard → Settings → API keys) |
 | `FLW_SECRET_HASH` | Any secret phrase; enter the same phrase in Flutterwave → Settings → Webhooks |
 | `ADMIN_EMAIL`, `ADMIN_PASSWORD` | The first admin login (password at least 10 characters). Used only by `npm run seed`. |
@@ -33,7 +34,7 @@ Without `FLW_SECRET_KEY` the shop runs in **test mode**: the payment step shows 
 "simulate payment" screen and no money moves. Test mode is refused on the live site
 unless `ALLOW_TEST_PAYMENTS=true` is set, so never set that in production.
 
-In Flutterwave, set the webhook URL to `https://your-domain.com/api/webhooks/flutterwave`.
+In Flutterwave, set the webhook URL to `https://api.gratoglobal.com/api/webhooks/flutterwave`.
 Make sure your Flutterwave account is enabled for both NGN and XAF.
 
 ## 3. Install, seed and run
@@ -46,8 +47,8 @@ npm run dev:all   # website on http://localhost:5173, API on port 3001
 
 Then sign in at `/admin` with `ADMIN_EMAIL` / `ADMIN_PASSWORD`.
 
-Deploy as before (push to the repository connected to Vercel). Run `npm run seed`
-once from your computer with `.env` pointing at the Atlas database.
+To go live, follow "Hosting" below. Run `npm run seed` once from your computer with
+`.env` pointing at the Atlas database.
 
 ## 4. Before launch
 
@@ -57,6 +58,44 @@ once from your computer with `.env` pointing at the Atlas database.
 - Check the pickup points, delivery cities and fees in Admin → Settings.
 - Check the commission tiers (Bronze 3%, Silver 5%, Gold 7%) and payout minimums.
 - Have someone review the referral programme terms shown on `/referral`.
+
+## Hosting: pages on Hostinger, API on Vercel
+
+The website pages are static files hosted on Hostinger at **gratoglobal.com**; the API
+(shop, accounts, forms, admin) runs on Vercel at **api.gratoglobal.com**.
+
+### 1. Put the API on Vercel with its own address
+
+1. Push the project to GitHub and import it in Vercel. `vercel.json` makes it an
+   API-only project (no website build); opening the API's home address redirects to the site.
+2. Add the environment variables in Vercel (see `.env.example`), with
+   `SITE_URL=https://gratoglobal.com`.
+3. Vercel → Project → Settings → Domains → add `api.gratoglobal.com`. Vercel shows a
+   **CNAME** record (usually `cname.vercel-dns.com`).
+4. Hostinger hPanel → Domains → DNS / Nameservers → add that record:
+   type `CNAME`, name `api`, target as shown by Vercel. Wait until Vercel shows the domain as valid.
+5. Check `https://api.gratoglobal.com/api/health` shows `{"ok":true}`.
+6. Flutterwave webhook URL: `https://api.gratoglobal.com/api/webhooks/flutterwave`.
+
+Keeping the API on a gratoglobal.com subdomain matters: sign-in cookies then count as
+"same site" and work in every browser. (A `*.vercel.app` address would need
+`COOKIE_SAMESITE=none` and is blocked by some browsers, such as Safari.)
+
+### 2. Build the pages and upload them to Hostinger
+
+1. On your computer, in the project folder: `npm run build`. This reads
+   `.env.production` (`VITE_API_URL=https://api.gratoglobal.com`) and writes the site to `dist/`.
+2. Hostinger hPanel → Websites → gratoglobal.com → File Manager → `public_html`.
+   Delete the old site files (keep nothing you still need), then upload **the contents of**
+   `dist/` (not the folder itself). Tip: zip the contents of `dist`, upload the zip, then
+   use *Extract* in File Manager.
+3. Make sure `.htaccess` is in `public_html` (File Manager may hide dot files; enable
+   "Show hidden files"). It sends every page address, such as `/fr/projects`, to `index.html`.
+4. hPanel → Security → SSL: make sure SSL is active and **Force HTTPS** is on.
+5. Open `https://gratoglobal.com`, sign in at `/admin`, and try the quote form.
+
+Repeat step 2 whenever the pages change. Changes made in the admin dashboard (products,
+news, projects…) need no upload; they are stored by the API.
 
 ## How orders work
 
